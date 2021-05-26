@@ -25,6 +25,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	defer lis.Close()
 
 	db, err := sql.Open("pgx", "postgres://postgres:password@localhost:5432/portal_development")
 	if err != nil {
