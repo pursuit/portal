@@ -1,4 +1,4 @@
-package test_integration_test
+package grpc_test
 
 import (
 	"errors"

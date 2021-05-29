@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"net"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -11,11 +13,14 @@ import (
 	"github.com/pursuit/portal/internal/proto/out"
 	"github.com/pursuit/portal/internal/proto/server"
 	"github.com/pursuit/portal/internal/repo"
+	"github.com/pursuit/portal/internal/rest"
 	"github.com/pursuit/portal/internal/service/user"
 
 	"google.golang.org/grpc"
 
 	_ "github.com/jackc/pgx/stdlib"
+
+	"github.com/go-chi/chi/v5"
 )
 
 func main() {
@@ -33,17 +38,35 @@ func main() {
 	}
 	defer db.Close()
 
+	userSvc := user.Svc{
+		DB:       db,
+		UserRepo: repo.UserRepo{},
+	}
+
 	grpcServer := grpc.NewServer()
 	proto.RegisterUserServer(grpcServer, server.UserServer{
-		UserService: user.Svc{
-			DB:       db,
-			UserRepo: repo.UserRepo{},
-		},
+		UserService: userSvc,
 	})
 
 	go func() {
 		fmt.Println("listen to 5001")
 		if err := grpcServer.Serve(lis); err != nil {
+			panic(err)
+		}
+	}()
+
+	restHandler := rest.Handler{userSvc}
+	r := chi.NewRouter()
+	r.Post("/users", restHandler.CreateUser)
+
+	restServer := http.Server{
+		Addr:    ":5002",
+		Handler: r,
+	}
+
+	go func() {
+		fmt.Println("listen to 5002")
+		if err := restServer.ListenAndServe(); err != http.ErrServerClosed && err != nil {
 			panic(err)
 		}
 	}()
@@ -55,5 +78,8 @@ func main() {
 
 	fmt.Println("Shutting down the server")
 
+	if err := restServer.Shutdown(context.Background()); err != nil {
+		panic(err)
+	}
 	grpcServer.GracefulStop()
 }
