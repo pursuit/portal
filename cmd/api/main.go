@@ -21,6 +21,7 @@ import (
 	_ "github.com/jackc/pgx/stdlib"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
 )
 
 func main() {
@@ -57,6 +58,9 @@ func main() {
 
 	restHandler := rest.Handler{userSvc}
 	r := chi.NewRouter()
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins: []string{"*"},
+	}))
 	r.Post("/users", restHandler.CreateUser)
 
 	restServer := http.Server{
