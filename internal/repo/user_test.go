@@ -7,7 +7,6 @@ import (
 
 	"github.com/pursuit/portal/internal/repo"
 	"github.com/pursuit/portal/internal/repo/mock"
-	"github.com/pursuit/portal/mock/database/sql"
 
 	"github.com/golang/mock/gomock"
 )
@@ -20,7 +19,7 @@ func TestCreateUser(t *testing.T) {
 		tName string
 
 		connErr error
-		idErr   error
+		id      int
 
 		outputErr error
 	}{
@@ -31,6 +30,7 @@ func TestCreateUser(t *testing.T) {
 		},
 		{
 			tName: "success",
+			id: 8,
 		},
 	} {
 		t.Run(testcase.tName, func(t *testing.T) {
@@ -38,15 +38,23 @@ func TestCreateUser(t *testing.T) {
 			defer mocker.Finish()
 
 			db := mock_repo.NewMockDB(mocker)
-			result := mock_sql.NewMockResult(mocker)
+			row := mock_repo.NewMockRow(mocker)
 
-			db.EXPECT().ExecContext(gomock.Any(), gomock.Any(), username, password).Return(result, testcase.connErr)
+			db.EXPECT().QueryRowContext(gomock.Any(), "INSERT INTO users (username,hashed_password) VALUES($1,$2) RETURNING id", username, password).Return(row)
+			row.EXPECT().Scan(gomock.Any()).DoAndReturn(func (id *int) error {
+				*id = testcase.id
+				return testcase.connErr
+			})
 
-			err := repo.UserRepo{}.Create(context.Background(), db, username, password)
+			id, err := repo.UserRepo{}.Create(context.Background(), db, username, password)
 			if (testcase.outputErr == nil && err != nil) ||
 				(testcase.outputErr != nil && err == nil) ||
 				(err != nil && testcase.outputErr.Error() != err.Error()) {
 				t.Errorf("Test %s, err is %v, should be %v", testcase.tName, err, testcase.outputErr)
+			}
+
+			if testcase.id != id {
+				t.Errorf("Test %s, id is %d, should be %d", testcase.tName, id, testcase.id)
 			}
 		})
 	}

@@ -26,7 +26,8 @@ func (this Svc) Create(ctx context.Context, username string, password []byte) *i
 		return &internal.E{err, 503}
 	}
 
-	if err := this.UserRepo.Create(ctx, this.DB, username, hashedPassword); err != nil {
+	_, err = this.UserRepo.Create(ctx, this.DB, username, hashedPassword)
+	if err != nil {
 		return &internal.E{err, 503}
 	}
 

@@ -9,4 +9,9 @@ import (
 
 type DB interface {
 	ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error)
+	QueryRowContext(ctx context.Context, query string, args ...interface{}) Row
+}
+
+type Row interface {
+	Scan(dest ...interface{}) error
 }

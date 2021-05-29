@@ -83,7 +83,7 @@ func TestCreate(t *testing.T) {
 			userRepo := mock_repo.NewMockUser(mocker)
 
 			if testcase.validInput {
-				userRepo.EXPECT().Create(gomock.Any(), db, testcase.username, gomock.Any()).Return(testcase.persistErr)
+				userRepo.EXPECT().Create(gomock.Any(), db, testcase.username, gomock.Any()).Return(5, testcase.persistErr)
 			}
 
 			err := user.Svc{
