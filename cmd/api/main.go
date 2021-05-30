@@ -16,12 +16,16 @@ import (
 	"github.com/pursuit/portal/internal/rest"
 	"github.com/pursuit/portal/internal/service/user"
 
+	"github.com/pursuit/event-go/pkg"
+
 	"google.golang.org/grpc"
 
 	_ "github.com/jackc/pgx/stdlib"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
+
+	"github.com/Shopify/sarama"
 )
 
 func main() {
@@ -38,6 +42,20 @@ func main() {
 		panic(err)
 	}
 	defer db.Close()
+
+	kafkaProducer, err := sarama.NewSyncProducer([]string{"localhost:9092"}, nil)
+	if err != nil {
+		panic(err)
+	}
+
+	kafkaPublishFromSQL := pkg.KafkaConsumer{
+		Batch: uint(2),
+		DB: db,
+		Kafka: kafkaProducer,
+		WorkerNum: uint(2),
+	}
+	go kafkaPublishFromSQL.Run()
+	defer kafkaPublishFromSQL.Shutdown()
 
 	userSvc := user.Svc{
 		DB:       db,
