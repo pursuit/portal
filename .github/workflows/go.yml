@@ -22,4 +22,4 @@ jobs:
       run: go build -v ./...
 
     - name: Test
-      run: go test -v `go list ./... | grep -v cmd | grep -v test-integration`
+      run: go test -v `go list ./... | grep -v cmd | grep -v test-integration | grep -v repo`

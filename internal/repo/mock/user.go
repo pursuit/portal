@@ -7,6 +7,7 @@ package mock_repo
 import (
 	context "context"
 	reflect "reflect"
+	time "time"
 
 	gomock "github.com/golang/mock/gomock"
 	repo "github.com/pursuit/portal/internal/repo"
@@ -36,15 +37,16 @@ func (m *MockUser) EXPECT() *MockUserMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockUser) Create(ctx context.Context, db repo.DB, username string, hashedPassword []byte) error {
+func (m *MockUser) Create(ctx context.Context, db repo.DB, username string, hashedPassword []byte, now time.Time) (int, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", ctx, db, username, hashedPassword)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret := m.ctrl.Call(m, "Create", ctx, db, username, hashedPassword, now)
+	ret0, _ := ret[0].(int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockUserMockRecorder) Create(ctx, db, username, hashedPassword interface{}) *gomock.Call {
+func (mr *MockUserMockRecorder) Create(ctx, db, username, hashedPassword, now interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockUser)(nil).Create), ctx, db, username, hashedPassword)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockUser)(nil).Create), ctx, db, username, hashedPassword, now)
 }

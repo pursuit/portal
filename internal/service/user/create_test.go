@@ -9,6 +9,8 @@ import (
 	"github.com/pursuit/portal/internal/service/user"
 
 	"github.com/golang/mock/gomock"
+
+	"github.com/DATA-DOG/go-sqlmock"
 )
 
 func TestCreate(t *testing.T) {
@@ -79,11 +81,19 @@ func TestCreate(t *testing.T) {
 			mocker := gomock.NewController(t)
 			defer mocker.Finish()
 
-			db := mock_repo.NewMockDB(mocker)
+			db, mock, dbErr := sqlmock.New()
+			if dbErr != nil {
+				panic(dbErr)
+			}
+			defer db.Close()
+
+			mock.ExpectBegin()
+			mock.ExpectExec(`INSERT INTO events \(topic,payload\) VALUES\(\$1,\$2\)`).WillReturnResult(sqlmock.NewResult(1, 1))
+			mock.ExpectCommit()
 			userRepo := mock_repo.NewMockUser(mocker)
 
 			if testcase.validInput {
-				userRepo.EXPECT().Create(gomock.Any(), db, testcase.username, gomock.Any()).Return(testcase.persistErr)
+				userRepo.EXPECT().Create(gomock.Any(), gomock.Any(), testcase.username, gomock.Any(), gomock.Any()).Return(5, testcase.persistErr)
 			}
 
 			err := user.Svc{
