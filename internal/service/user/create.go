@@ -47,15 +47,15 @@ func (this Svc) process(ctx context.Context, username string, hashedPassword []b
 
 		createdAtProto, _ := ptypes.TimestampProto(now)
 		payload := event.Created{
-			Id: uint64(id),
-			Username: username,
+			Id:        uint64(id),
+			Username:  username,
 			CreatedAt: createdAtProto,
 		}
 
 		protodata, _ := proto.Marshal(&payload)
 
 		if err := pkg.StoreEvent(ctx, db, pkg.EventData{
-			Topic: "portal.user.created.x2",
+			Topic:   "portal.user.created.x2",
 			Payload: protodata,
 		}); err != nil {
 			return &internal.E{err, 503}
