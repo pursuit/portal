@@ -7,7 +7,7 @@
 - [Go 1.16](https://golang.org/doc/install)
 
 ### Migration
-- [Tool] https://github.com/golang-migrate/migrate
+- [Tool](https://github.com/golang-migrate/migrate)
 ```
 migrate -source file:internal/migration -database postgres://postgres:password@localhost:5432/portal_development?sslmode=disable up
 ```
