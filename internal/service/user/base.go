@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/pursuit/portal/internal"
 	"github.com/pursuit/portal/internal/repo"
@@ -14,6 +15,6 @@ type Service interface {
 }
 
 type Svc struct {
-	DB       repo.DB
+	DB       *sql.DB
 	UserRepo repo.User
 }

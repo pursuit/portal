@@ -6,6 +6,7 @@ import (
 	"unicode"
 
 	"github.com/pursuit/portal/internal"
+	"github.com/pursuit/portal/internal/repo"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -26,12 +27,18 @@ func (this Svc) Create(ctx context.Context, username string, password []byte) *i
 		return &internal.E{err, 503}
 	}
 
-	_, err = this.UserRepo.Create(ctx, this.DB, username, hashedPassword)
-	if err != nil {
-		return &internal.E{err, 503}
-	}
+	return this.process(ctx, username, hashedPassword)
+}
 
-	return nil
+func (this Svc) process(ctx context.Context, username string, hashedPassword []byte) *internal.E {
+	return repo.Transaction(ctx, this.DB, func(db repo.DB) *internal.E {
+		_, err := this.UserRepo.Create(ctx, db, username, hashedPassword)
+		if err != nil {
+			return &internal.E{err, 503}
+		}
+
+		return nil
+	})
 }
 
 func validInputCreate(username string, password []byte) bool {
