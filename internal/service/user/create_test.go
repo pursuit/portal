@@ -88,11 +88,12 @@ func TestCreate(t *testing.T) {
 			defer db.Close()
 
 			mock.ExpectBegin()
+			mock.ExpectExec(`INSERT INTO events \(topic,payload\) VALUES\(\$1,\$2\)`).WillReturnResult(sqlmock.NewResult(1, 1))
 			mock.ExpectCommit()
 			userRepo := mock_repo.NewMockUser(mocker)
 
 			if testcase.validInput {
-				userRepo.EXPECT().Create(gomock.Any(), gomock.Any(), testcase.username, gomock.Any()).Return(5, testcase.persistErr)
+				userRepo.EXPECT().Create(gomock.Any(), gomock.Any(), testcase.username, gomock.Any(), gomock.Any()).Return(5, testcase.persistErr)
 			}
 
 			err := user.Svc{

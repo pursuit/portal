@@ -3,10 +3,17 @@ package user
 import (
 	"context"
 	"errors"
+	"time"
 	"unicode"
 
 	"github.com/pursuit/portal/internal"
+	"github.com/pursuit/portal/internal/proto/event"
 	"github.com/pursuit/portal/internal/repo"
+
+	"github.com/pursuit/event-go/pkg"
+
+	"github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/ptypes"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -32,8 +39,25 @@ func (this Svc) Create(ctx context.Context, username string, password []byte) *i
 
 func (this Svc) process(ctx context.Context, username string, hashedPassword []byte) *internal.E {
 	return repo.Transaction(ctx, this.DB, func(db repo.DB) *internal.E {
-		_, err := this.UserRepo.Create(ctx, db, username, hashedPassword)
+		now := time.Now().UTC()
+		id, err := this.UserRepo.Create(ctx, db, username, hashedPassword, now)
 		if err != nil {
+			return &internal.E{err, 503}
+		}
+
+		createdAtProto, _ := ptypes.TimestampProto(now)
+		payload := event.Created{
+			Id: uint64(id),
+			Username: username,
+			CreatedAt: createdAtProto,
+		}
+
+		protodata, _ := proto.Marshal(&payload)
+
+		if err := pkg.StoreEvent(ctx, db, pkg.EventData{
+			Topic: "portal.user.created.x2",
+			Payload: protodata,
+		}); err != nil {
 			return &internal.E{err, 503}
 		}
 
