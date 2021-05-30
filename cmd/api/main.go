@@ -8,12 +8,15 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 
+	"github.com/pursuit/portal/internal/consumer"
 	"github.com/pursuit/portal/internal/proto/out"
 	"github.com/pursuit/portal/internal/proto/server"
 	"github.com/pursuit/portal/internal/repo"
 	"github.com/pursuit/portal/internal/rest"
+	"github.com/pursuit/portal/internal/service/mutation"
 	"github.com/pursuit/portal/internal/service/user"
 
 	"github.com/pursuit/event-go/pkg"
@@ -48,15 +51,19 @@ func main() {
 		panic(err)
 	}
 
-	kafkaPublishFromSQL := pkg.KafkaConsumer{
-		Batch: uint(2),
-		DB: db,
-		Kafka: kafkaProducer,
+	kafkaPublishFromSQL := pkg.KafkaPublishFromSQL{
+		Batch:     uint(2),
+		DB:        db,
+		Kafka:     kafkaProducer,
 		WorkerNum: uint(2),
 	}
 	go kafkaPublishFromSQL.Run()
 	defer kafkaPublishFromSQL.Shutdown()
 
+	mutationSvc := mutation.Svc{
+		DB:           db,
+		MutationRepo: repo.MutationRepo{},
+	}
 	userSvc := user.Svc{
 		DB:       db,
 		UserRepo: repo.UserRepo{},
@@ -93,9 +100,49 @@ func main() {
 		}
 	}()
 
+	freeCoinAfterRegister := consumer.FreeCoinRegisterConsumer{
+		Ready:       make(chan bool),
+		MutationSvc: mutationSvc,
+	}
+
+	config := sarama.NewConfig()
+	config.Version = sarama.V2_8_0_0
+	config.Consumer.Group.Rebalance.Strategy = sarama.BalanceStrategyRoundRobin
+	kafkaConsumer, err := sarama.NewConsumerGroup([]string{"localhost:9092"}, "free-coin-for-register", sarama.NewConfig())
+	if err != nil {
+		panic(err)
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
+	defer wg.Wait()
+	defer cancel()
+	go func() {
+		defer fmt.Println("finish consum")
+		defer wg.Done()
+		for {
+			fmt.Println("a")
+			// `Consume` should be called inside an infinite loop, when a
+			// server-side rebalance happens, the consumer session will need to be
+			// recreated to get the new claims
+			if err := kafkaConsumer.Consume(ctx, []string{"portal.user.created.x2"}, &freeCoinAfterRegister); err != nil {
+				fmt.Printf("Error from consumer: %v", err)
+			}
+			// check if context was cancelled, signaling that the consumer should stop
+			if ctx.Err() != nil {
+				return
+			}
+			freeCoinAfterRegister.Ready = make(chan bool)
+		}
+	}()
+
+	<-freeCoinAfterRegister.Ready
+
 	sigint := make(chan os.Signal, 1)
 	signal.Notify(sigint, os.Interrupt, syscall.SIGTERM)
 
+	fmt.Println("Server is ready")
 	<-sigint
 
 	fmt.Println("Shutting down the server")
