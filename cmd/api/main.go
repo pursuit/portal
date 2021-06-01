@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"log"
 	"net"
-	"net/http"
 	"os"
 	"os/signal"
 	"sync"
@@ -15,7 +14,6 @@ import (
 	"github.com/pursuit/portal/internal/proto/out"
 	"github.com/pursuit/portal/internal/proto/server"
 	"github.com/pursuit/portal/internal/repo"
-	"github.com/pursuit/portal/internal/rest"
 	"github.com/pursuit/portal/internal/service/mutation"
 	"github.com/pursuit/portal/internal/service/user"
 
@@ -24,9 +22,6 @@ import (
 	"google.golang.org/grpc"
 
 	_ "github.com/jackc/pgx/stdlib"
-
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/cors"
 
 	"github.com/Shopify/sarama"
 )
@@ -71,32 +66,13 @@ func main() {
 
 	grpcServer := grpc.NewServer()
 	proto.RegisterUserServer(grpcServer, server.UserServer{
-		UserService: userSvc,
+		UserService:     userSvc,
+		MutationService: mutationSvc,
 	})
 
 	go func() {
 		log.Println("listen to 5001")
 		if err := grpcServer.Serve(lis); err != nil {
-			panic(err)
-		}
-	}()
-
-	restHandler := rest.Handler{userSvc}
-	r := chi.NewRouter()
-	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins: []string{"*"},
-	}))
-	r.Post("/sessions", restHandler.Login)
-	r.Post("/users", restHandler.CreateUser)
-
-	restServer := http.Server{
-		Addr:    ":5002",
-		Handler: r,
-	}
-
-	go func() {
-		log.Println("listen to 5002")
-		if err := restServer.ListenAndServe(); err != http.ErrServerClosed && err != nil {
 			panic(err)
 		}
 	}()
@@ -144,8 +120,5 @@ func main() {
 
 	log.Println("Shutting down the server")
 
-	if err := restServer.Shutdown(context.Background()); err != nil {
-		panic(err)
-	}
 	grpcServer.GracefulStop()
 }

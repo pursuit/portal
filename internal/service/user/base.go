@@ -11,7 +11,7 @@ import (
 //go:generate mockgen -source=base.go -destination=mock/base.go
 
 type Service interface {
-	Create(ctx context.Context, username string, password []byte) *internal.E
+	Create(ctx context.Context, username string, password []byte) (int, *internal.E)
 	Login(ctx context.Context, username string, password []byte) (string, *internal.E)
 }
 

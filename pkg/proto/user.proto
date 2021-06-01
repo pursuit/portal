@@ -1,7 +1,5 @@
 syntax = "proto3";
 
-import "google/protobuf/empty.proto";
-
 option go_package = "github.com/pursuit/portal/pkg/proto";
 
 package proto;
@@ -11,6 +9,19 @@ message CreateUserPayload {
   bytes password = 2;
 }
 
+message CreateUserResponse {
+  int64 id = 1;
+}
+
+message GetUserBalancePayload {
+  int64 user_id = 1;
+}
+
+message GetUserBalanceResponse {
+  int64 amount = 1;
+}
+
 service User {
-  rpc Create(CreateUserPayload) returns (google.protobuf.Empty) {}
+  rpc Create(CreateUserPayload) returns (CreateUserResponse) {}
+  rpc GetBalance(GetUserBalancePayload) returns (GetUserBalanceResponse) {}
 }

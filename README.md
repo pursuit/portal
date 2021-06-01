@@ -14,5 +14,5 @@ migrate -source file:internal/migration -database postgres://postgres:password@l
 
 ### Generate Proto
 ```
-protoc --proto_path=pkg/proto/event --go_out=internal/proto/event --go_opt=paths=source_relative event_user.proto
+protoc --proto_path=pkg/proto --go_out=internal/proto/out --go_opt=paths=source_relative --go-grpc_opt=paths=source_relative --go-grpc_out=internal/proto/out user.proto
 ```

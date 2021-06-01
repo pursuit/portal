@@ -26,6 +26,7 @@ func TestCreate(t *testing.T) {
 		persistErr *internal.E
 
 		outputErr error
+		outputID  int
 	}{
 		{
 			tName:     "username len is not too small",
@@ -76,6 +77,7 @@ func TestCreate(t *testing.T) {
 			username:   "a1234566",
 			password:   []byte("valids"),
 			validInput: true,
+			outputID:   8,
 		},
 	} {
 		t.Run(testcase.tName, func(t *testing.T) {
@@ -94,10 +96,10 @@ func TestCreate(t *testing.T) {
 			userRepo := mock_repo.NewMockUser(mocker)
 
 			if testcase.validInput {
-				userRepo.EXPECT().Create(gomock.Any(), gomock.Any(), testcase.username, gomock.Any(), gomock.Any()).Return(5, testcase.persistErr)
+				userRepo.EXPECT().Create(gomock.Any(), gomock.Any(), testcase.username, gomock.Any(), gomock.Any()).Return(testcase.outputID, testcase.persistErr)
 			}
 
-			err := user.Svc{
+			id, err := user.Svc{
 				UserRepo: userRepo,
 				DB:       db,
 			}.Create(context.Background(), testcase.username, testcase.password)
@@ -106,6 +108,10 @@ func TestCreate(t *testing.T) {
 				(testcase.outputErr != nil && err == nil) ||
 				(err != nil && testcase.outputErr.Error() != err.Error()) {
 				t.Errorf("Test %s, err is %v, should be %v", testcase.tName, err, testcase.outputErr)
+			}
+
+			if testcase.outputID != id {
+				t.Errorf("Test %s, id is %d, should be %d", testcase.tName, id, testcase.outputID)
 			}
 
 			for _, ch := range testcase.password {
