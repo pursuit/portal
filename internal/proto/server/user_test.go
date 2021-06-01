@@ -26,7 +26,7 @@ func TestCreateUser(t *testing.T) {
 			tName: "failed to create, client error",
 			createErr: &internal.E{
 				Err:    errors.New("invalid username"),
-				Status: 422,
+				Status: 422_000,
 			},
 			outputErr: errors.New("rpc error: code = InvalidArgument desc = invalid username"),
 		},
@@ -34,7 +34,7 @@ func TestCreateUser(t *testing.T) {
 			tName: "failed to create, server error",
 			createErr: &internal.E{
 				Err:    errors.New("database down"),
-				Status: 503,
+				Status: 503_000,
 			},
 			outputErr: errors.New("rpc error: code = Unavailable desc = Please try again in a few moment"),
 		},

@@ -10,6 +10,7 @@ import (
 	time "time"
 
 	gomock "github.com/golang/mock/gomock"
+	internal "github.com/pursuit/portal/internal"
 	repo "github.com/pursuit/portal/internal/repo"
 )
 
@@ -37,11 +38,11 @@ func (m *MockMutation) EXPECT() *MockMutationMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockMutation) Create(ctx context.Context, db repo.DB, userID, referenceID int, referenceType string, amount int, createdAt time.Time) (int, error) {
+func (m *MockMutation) Create(ctx context.Context, db repo.DB, userID, referenceID int, referenceType string, amount int, createdAt time.Time) (int, *internal.E) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", ctx, db, userID, referenceID, referenceType, amount, createdAt)
 	ret0, _ := ret[0].(int)
-	ret1, _ := ret[1].(error)
+	ret1, _ := ret[1].(*internal.E)
 	return ret0, ret1
 }
 

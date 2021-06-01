@@ -26,12 +26,12 @@ func (this Svc) Create(ctx context.Context, username string, password []byte) *i
 	}()
 
 	if !validInputCreate(username, password) {
-		return &internal.E{errors.New("invalid input"), 422}
+		return &internal.E{errors.New("invalid input"), internal.EInvalidInput}
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword(password, 12)
 	if err != nil {
-		return &internal.E{err, 503}
+		return &internal.E{err, internal.EFailedHashPassword}
 	}
 
 	return this.process(ctx, username, hashedPassword)
@@ -42,7 +42,7 @@ func (this Svc) process(ctx context.Context, username string, hashedPassword []b
 		now := time.Now().UTC()
 		id, err := this.UserRepo.Create(ctx, db, username, hashedPassword, now)
 		if err != nil {
-			return &internal.E{err, 503}
+			return err
 		}
 
 		createdAtProto, _ := ptypes.TimestampProto(now)
@@ -58,7 +58,7 @@ func (this Svc) process(ctx context.Context, username string, hashedPassword []b
 			Topic:   "portal.user.created.x2",
 			Payload: protodata,
 		}); err != nil {
-			return &internal.E{err, 503}
+			return &internal.E{err, internal.EFailedStoreEvent}
 		}
 
 		return nil

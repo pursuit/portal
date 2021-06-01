@@ -25,9 +25,10 @@ func (this Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := this.UserService.Create(r.Context(), payload.Username, payload.Password[1:len(payload.Password)-1]); err != nil {
-		w.WriteHeader(err.Status)
-		if err.Status >= 400 && err.Status < 500 {
-			w.Write([]byte("invalid input"))
+		httpStatus := err.Status / 1_000
+		w.WriteHeader(httpStatus)
+		if httpStatus >= 400 && httpStatus < 500 {
+			w.Write([]byte(err.Error()))
 			return
 		}
 

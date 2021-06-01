@@ -5,6 +5,7 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/pursuit/portal/internal"
 	"github.com/pursuit/portal/internal/repo/mock"
 	"github.com/pursuit/portal/internal/service/user"
 
@@ -22,7 +23,7 @@ func TestCreate(t *testing.T) {
 
 		validInput bool
 
-		persistErr error
+		persistErr *internal.E
 
 		outputErr error
 	}{
@@ -67,7 +68,7 @@ func TestCreate(t *testing.T) {
 			username:   "a1234566",
 			password:   []byte("valids"),
 			validInput: true,
-			persistErr: errors.New("timeout persist"),
+			persistErr: &internal.E{Err: errors.New("timeout persist")},
 			outputErr:  errors.New("timeout persist"),
 		},
 		{

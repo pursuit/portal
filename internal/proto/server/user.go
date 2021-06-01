@@ -20,7 +20,8 @@ type UserServer struct {
 
 func (this UserServer) Create(ctx context.Context, in *proto.CreateUserPayload) (*empty.Empty, error) {
 	if err := this.UserService.Create(ctx, in.GetName(), in.GetPassword()); err != nil {
-		if err.Status >= 400 && err.Status < 500 {
+		httpStatus := err.Status / 1_000
+		if httpStatus >= 400 && httpStatus < 500 {
 			return nil, grpc.Errorf(codes.InvalidArgument, err.Error())
 		}
 

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/pursuit/portal/internal"
 	"github.com/pursuit/portal/internal/repo/mock"
 	"github.com/pursuit/portal/internal/service/mutation"
 
@@ -19,7 +20,7 @@ func TestCreate(t *testing.T) {
 
 		validType bool
 
-		persistErr error
+		persistErr *internal.E
 		outputErr  error
 	}{
 		{
@@ -31,7 +32,7 @@ func TestCreate(t *testing.T) {
 			tName:         "failed persist",
 			referenceType: "free_coins",
 			validType:     true,
-			persistErr:    errors.New("failed persist"),
+			persistErr:    &internal.E{Err: errors.New("failed persist")},
 			outputErr:     errors.New("failed persist"),
 		},
 		{
