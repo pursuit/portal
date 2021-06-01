@@ -50,3 +50,18 @@ func (mr *MockMutationMockRecorder) Create(ctx, db, userID, referenceID, referen
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockMutation)(nil).Create), ctx, db, userID, referenceID, referenceType, amount, createdAt)
 }
+
+// GetBalance mocks base method.
+func (m *MockMutation) GetBalance(ctx context.Context, db repo.DB, userID int) (int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetBalance", ctx, db, userID)
+	ret0, _ := ret[0].(int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetBalance indicates an expected call of GetBalance.
+func (mr *MockMutationMockRecorder) GetBalance(ctx, db, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBalance", reflect.TypeOf((*MockMutation)(nil).GetBalance), ctx, db, userID)
+}
