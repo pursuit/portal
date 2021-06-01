@@ -19,7 +19,7 @@ func Transaction(ctx context.Context, db *sql.DB, fn func(DB) *internal.E) *inte
 	if err != nil {
 		return &internal.E{
 			Err:    err,
-			Status: 503,
+			Status: internal.EDbProblem,
 		}
 	}
 
@@ -31,7 +31,7 @@ func Transaction(ctx context.Context, db *sql.DB, fn func(DB) *internal.E) *inte
 	if err := tx.Commit(); err != nil {
 		return &internal.E{
 			Err:    err,
-			Status: 503,
+			Status: internal.EDbProblem,
 		}
 	}
 

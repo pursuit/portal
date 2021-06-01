@@ -25,16 +25,13 @@ func (this Svc) Create(ctx context.Context, userID int, referenceID int, referen
 	if !validType {
 		return &internal.E{
 			Err:    errors.New("invalid reference"),
-			Status: 422,
+			Status: internal.EMutationRefNotFound,
 		}
 	}
 
 	_, err := this.MutationRepo.Create(ctx, this.DB, userID, referenceID, referenceType, amount, now)
 	if err != nil {
-		return &internal.E{
-			Err:    err,
-			Status: 503,
-		}
+		return err
 	}
 
 	return nil

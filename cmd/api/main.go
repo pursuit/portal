@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
-	"fmt"
+	"log"
 	"net"
 	"net/http"
 	"os"
@@ -32,7 +32,7 @@ import (
 )
 
 func main() {
-	defer fmt.Println("Shutdown the server success")
+	defer log.Println("Shutdown the server success")
 
 	lis, err := net.Listen("tcp", ":5001")
 	if err != nil {
@@ -75,7 +75,7 @@ func main() {
 	})
 
 	go func() {
-		fmt.Println("listen to 5001")
+		log.Println("listen to 5001")
 		if err := grpcServer.Serve(lis); err != nil {
 			panic(err)
 		}
@@ -94,7 +94,7 @@ func main() {
 	}
 
 	go func() {
-		fmt.Println("listen to 5002")
+		log.Println("listen to 5002")
 		if err := restServer.ListenAndServe(); err != http.ErrServerClosed && err != nil {
 			panic(err)
 		}
@@ -119,20 +119,16 @@ func main() {
 	defer wg.Wait()
 	defer cancel()
 	go func() {
-		defer fmt.Println("finish consum")
+		defer log.Println("finish consum")
 		defer wg.Done()
 		for {
-			fmt.Println("a")
-			// `Consume` should be called inside an infinite loop, when a
-			// server-side rebalance happens, the consumer session will need to be
-			// recreated to get the new claims
 			if err := kafkaConsumer.Consume(ctx, []string{"portal.user.created.x2"}, &freeCoinAfterRegister); err != nil {
-				fmt.Printf("Error from consumer: %v", err)
+				log.Printf("Error from consumer: %v", err)
 			}
-			// check if context was cancelled, signaling that the consumer should stop
 			if ctx.Err() != nil {
 				return
 			}
+
 			freeCoinAfterRegister.Ready = make(chan bool)
 		}
 	}()
@@ -142,10 +138,10 @@ func main() {
 	sigint := make(chan os.Signal, 1)
 	signal.Notify(sigint, os.Interrupt, syscall.SIGTERM)
 
-	fmt.Println("Server is ready")
+	log.Println("Server is ready")
 	<-sigint
 
-	fmt.Println("Shutting down the server")
+	log.Println("Shutting down the server")
 
 	if err := restServer.Shutdown(context.Background()); err != nil {
 		panic(err)

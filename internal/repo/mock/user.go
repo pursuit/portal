@@ -10,6 +10,7 @@ import (
 	time "time"
 
 	gomock "github.com/golang/mock/gomock"
+	internal "github.com/pursuit/portal/internal"
 	repo "github.com/pursuit/portal/internal/repo"
 )
 
@@ -37,11 +38,11 @@ func (m *MockUser) EXPECT() *MockUserMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockUser) Create(ctx context.Context, db repo.DB, username string, hashedPassword []byte, now time.Time) (int, error) {
+func (m *MockUser) Create(ctx context.Context, db repo.DB, username string, hashedPassword []byte, now time.Time) (int, *internal.E) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", ctx, db, username, hashedPassword, now)
 	ret0, _ := ret[0].(int)
-	ret1, _ := ret[1].(error)
+	ret1, _ := ret[1].(*internal.E)
 	return ret0, ret1
 }
 
