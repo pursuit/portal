@@ -10,8 +10,11 @@ import (
 	"github.com/pursuit/portal/internal/repo"
 )
 
+//go:generate mockgen -source=base.go -destination=mock/base.go
+
 type Service interface {
 	Create(ctx context.Context, userID int, referenceID int, referenceType string, amount int) *internal.E
+	GetBalance(ctx context.Context, userID int) (int, *internal.E)
 }
 
 type Svc struct {
@@ -35,4 +38,13 @@ func (this Svc) Create(ctx context.Context, userID int, referenceID int, referen
 	}
 
 	return nil
+}
+
+func (this Svc) GetBalance(ctx context.Context, userID int) (int, *internal.E) {
+	balance, err := this.MutationRepo.GetBalance(ctx, this.DB, userID)
+	if err != nil {
+		return balance, err
+	}
+
+	return balance, nil
 }

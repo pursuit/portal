@@ -18,7 +18,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (this Svc) Create(ctx context.Context, username string, password []byte) *internal.E {
+func (this Svc) Create(ctx context.Context, username string, password []byte) (int, *internal.E) {
 	defer func() {
 		for i := 0; i < len(password); i++ {
 			password[i] = 0
@@ -26,19 +26,20 @@ func (this Svc) Create(ctx context.Context, username string, password []byte) *i
 	}()
 
 	if !validInputCreate(username, password) {
-		return &internal.E{errors.New("invalid input"), internal.EInvalidInput}
+		return 0, &internal.E{errors.New("invalid input"), internal.EInvalidInput}
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword(password, 12)
 	if err != nil {
-		return &internal.E{err, internal.EFailedHashPassword}
+		return 0, &internal.E{err, internal.EFailedHashPassword}
 	}
 
 	return this.process(ctx, username, hashedPassword)
 }
 
-func (this Svc) process(ctx context.Context, username string, hashedPassword []byte) *internal.E {
-	return repo.Transaction(ctx, this.DB, func(db repo.DB) *internal.E {
+func (this Svc) process(ctx context.Context, username string, hashedPassword []byte) (int, *internal.E) {
+	var userID int
+	err := repo.Transaction(ctx, this.DB, func(db repo.DB) *internal.E {
 		now := time.Now().UTC()
 		id, err := this.UserRepo.Create(ctx, db, username, hashedPassword, now)
 		if err != nil {
@@ -61,8 +62,11 @@ func (this Svc) process(ctx context.Context, username string, hashedPassword []b
 			return &internal.E{err, internal.EFailedStoreEvent}
 		}
 
+		userID = id
 		return nil
 	})
+
+	return userID, err
 }
 
 func validInputCreate(username string, password []byte) bool {

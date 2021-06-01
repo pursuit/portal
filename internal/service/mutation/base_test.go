@@ -64,3 +64,47 @@ func TestCreate(t *testing.T) {
 		})
 	}
 }
+
+func TestGetBalance(t *testing.T) {
+	for _, testcase := range []struct {
+		tName string
+
+		dbErr     *internal.E
+		outputErr error
+		balance   int
+	}{
+		{
+			tName:     "failed db",
+			dbErr:     &internal.E{Err: errors.New("failed conn")},
+			outputErr: errors.New("failed conn"),
+		},
+		{
+			tName:   "success",
+			balance: 500,
+		},
+	} {
+		t.Run(testcase.tName, func(t *testing.T) {
+			mocker := gomock.NewController(t)
+
+			db := mock_repo.NewMockDB(mocker)
+			repo := mock_repo.NewMockMutation(mocker)
+
+			repo.EXPECT().GetBalance(gomock.Any(), db, 2).Return(testcase.balance, testcase.dbErr)
+
+			balance, err := mutation.Svc{
+				DB:           db,
+				MutationRepo: repo,
+			}.GetBalance(context.Background(), 2)
+
+			if (testcase.outputErr == nil && err != nil) ||
+				(testcase.outputErr != nil && err == nil) ||
+				(err != nil && testcase.outputErr.Error() != err.Error()) {
+				t.Errorf("Test %s, err is %v, should be %v", testcase.tName, err, testcase.outputErr)
+			}
+
+			if testcase.balance != balance {
+				t.Errorf("Test %s, balance is %d, should be %d", testcase.tName, balance, testcase.balance)
+			}
+		})
+	}
+}

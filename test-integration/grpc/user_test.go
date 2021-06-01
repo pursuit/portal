@@ -3,6 +3,7 @@ package grpc_test
 import (
 	"errors"
 	"testing"
+	"time"
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -17,6 +18,8 @@ func TestUser(t *testing.T) {
 		panic(err)
 	}
 	defer conn.Close()
+
+	var successID int
 
 	for _, testcase := range []struct {
 		tName string
@@ -70,7 +73,7 @@ func TestUser(t *testing.T) {
 	} {
 		t.Run(testcase.tName, func(t *testing.T) {
 			c := proto.NewUserClient(conn)
-			_, err = c.Create(context.Background(), &proto.CreateUserPayload{
+			resp, err := c.Create(context.Background(), &proto.CreateUserPayload{
 				Name:     testcase.username,
 				Password: testcase.password,
 			})
@@ -80,6 +83,57 @@ func TestUser(t *testing.T) {
 				(err != nil && testcase.outputErr.Error() != err.Error()) {
 				t.Errorf("Test %s, err is %v, should be %v", testcase.tName, err, testcase.outputErr)
 			}
+
+			if err == nil {
+				successID = int(resp.GetId())
+			}
 		})
+	}
+
+	time.Sleep(3 * time.Minute)
+	testGetUserBalanceValid(t, successID)
+}
+
+func testGetUserBalanceValid(t *testing.T, userID int) {
+	var conn *grpc.ClientConn
+	conn, err := grpc.Dial(":5001", grpc.WithInsecure())
+	if err != nil {
+		panic(err)
+	}
+	defer conn.Close()
+
+	c := proto.NewUserClient(conn)
+	resp, err := c.GetBalance(context.Background(), &proto.GetUserBalancePayload{
+		UserId: int64(userID),
+	})
+
+	if err != nil {
+		t.Errorf("Test created get user balance got error %v", err)
+	}
+
+	if resp.GetAmount() != int64(10) {
+		t.Errorf("Test created get user balance is %d, should be 10", resp.GetAmount())
+	}
+}
+
+func TestGetNotExistingUserBalance(t *testing.T) {
+	var conn *grpc.ClientConn
+	conn, err := grpc.Dial(":5001", grpc.WithInsecure())
+	if err != nil {
+		panic(err)
+	}
+	defer conn.Close()
+
+	c := proto.NewUserClient(conn)
+	resp, err := c.GetBalance(context.Background(), &proto.GetUserBalancePayload{
+		UserId: int64(0),
+	})
+
+	if err != nil {
+		t.Errorf("Test not exist get user balance got error %v", err)
+	}
+
+	if resp.GetAmount() != int64(0) {
+		t.Errorf("Test not exists get user balance is %d, should be 0", resp.GetAmount())
 	}
 }

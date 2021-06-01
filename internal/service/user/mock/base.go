@@ -36,11 +36,12 @@ func (m *MockService) EXPECT() *MockServiceMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockService) Create(ctx context.Context, username string, password []byte) *internal.E {
+func (m *MockService) Create(ctx context.Context, username string, password []byte) (int, *internal.E) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", ctx, username, password)
-	ret0, _ := ret[0].(*internal.E)
-	return ret0
+	ret0, _ := ret[0].(int)
+	ret1, _ := ret[1].(*internal.E)
+	return ret0, ret1
 }
 
 // Create indicates an expected call of Create.
