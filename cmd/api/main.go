@@ -86,6 +86,7 @@ func main() {
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins: []string{"*"},
 	}))
+	r.Post("/sessions", restHandler.Login)
 	r.Post("/users", restHandler.CreateUser)
 
 	restServer := http.Server{

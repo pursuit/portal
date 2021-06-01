@@ -12,6 +12,7 @@ import (
 
 type Service interface {
 	Create(ctx context.Context, username string, password []byte) *internal.E
+	Login(ctx context.Context, username string, password []byte) (string, *internal.E)
 }
 
 type Svc struct {
