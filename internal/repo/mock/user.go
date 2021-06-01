@@ -11,6 +11,7 @@ import (
 
 	gomock "github.com/golang/mock/gomock"
 	internal "github.com/pursuit/portal/internal"
+	model "github.com/pursuit/portal/internal/model"
 	repo "github.com/pursuit/portal/internal/repo"
 )
 
@@ -50,4 +51,19 @@ func (m *MockUser) Create(ctx context.Context, db repo.DB, username string, hash
 func (mr *MockUserMockRecorder) Create(ctx, db, username, hashedPassword, now interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockUser)(nil).Create), ctx, db, username, hashedPassword, now)
+}
+
+// GetByUsername mocks base method.
+func (m *MockUser) GetByUsername(ctx context.Context, db repo.DB, username string) (model.User, *internal.E) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByUsername", ctx, db, username)
+	ret0, _ := ret[0].(model.User)
+	ret1, _ := ret[1].(*internal.E)
+	return ret0, ret1
+}
+
+// GetByUsername indicates an expected call of GetByUsername.
+func (mr *MockUserMockRecorder) GetByUsername(ctx, db, username interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByUsername", reflect.TypeOf((*MockUser)(nil).GetByUsername), ctx, db, username)
 }

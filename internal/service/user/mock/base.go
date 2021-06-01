@@ -48,3 +48,18 @@ func (mr *MockServiceMockRecorder) Create(ctx, username, password interface{}) *
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockService)(nil).Create), ctx, username, password)
 }
+
+// Login mocks base method.
+func (m *MockService) Login(ctx context.Context, username string, password []byte) (string, *internal.E) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Login", ctx, username, password)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(*internal.E)
+	return ret0, ret1
+}
+
+// Login indicates an expected call of Login.
+func (mr *MockServiceMockRecorder) Login(ctx, username, password interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Login", reflect.TypeOf((*MockService)(nil).Login), ctx, username, password)
+}
