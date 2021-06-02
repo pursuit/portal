@@ -20,6 +20,8 @@ func TestUser(t *testing.T) {
 	defer conn.Close()
 
 	var successID int
+	var successUsername string
+	var successPassword []byte
 
 	for _, testcase := range []struct {
 		tName string
@@ -74,7 +76,7 @@ func TestUser(t *testing.T) {
 		t.Run(testcase.tName, func(t *testing.T) {
 			c := proto.NewUserClient(conn)
 			resp, err := c.Create(context.Background(), &proto.CreateUserPayload{
-				Name:     testcase.username,
+				Username: testcase.username,
 				Password: testcase.password,
 			})
 
@@ -86,12 +88,15 @@ func TestUser(t *testing.T) {
 
 			if err == nil {
 				successID = int(resp.GetId())
+				successUsername = testcase.username
+				successPassword = testcase.password
 			}
 		})
 	}
 
 	time.Sleep(5 * time.Second)
 	testGetUserBalanceValid(t, successID)
+	testLoginValid(t, successUsername, successPassword)
 }
 
 func testGetUserBalanceValid(t *testing.T, userID int) {
@@ -116,6 +121,29 @@ func testGetUserBalanceValid(t *testing.T, userID int) {
 	}
 }
 
+func testLoginValid(t *testing.T, username string, password []byte) {
+	var conn *grpc.ClientConn
+	conn, err := grpc.Dial(":5001", grpc.WithInsecure())
+	if err != nil {
+		panic(err)
+	}
+	defer conn.Close()
+
+	c := proto.NewUserClient(conn)
+	resp, err := c.Login(context.Background(), &proto.LoginPayload{
+		Username: username,
+		Password: password,
+	})
+
+	if err != nil {
+		t.Errorf("Test login valid got error %v", err)
+	}
+
+	if resp.GetToken() == "" {
+		t.Error("Test login valid token should not be empty string")
+	}
+}
+
 func TestGetNotExistingUserBalance(t *testing.T) {
 	var conn *grpc.ClientConn
 	conn, err := grpc.Dial(":5001", grpc.WithInsecure())
@@ -135,5 +163,23 @@ func TestGetNotExistingUserBalance(t *testing.T) {
 
 	if resp.GetAmount() != int64(0) {
 		t.Errorf("Test not exists get user balance is %d, should be 0", resp.GetAmount())
+	}
+}
+
+func TestLoginNotExistingUser(t *testing.T) {
+	var conn *grpc.ClientConn
+	conn, err := grpc.Dial(":5001", grpc.WithInsecure())
+	if err != nil {
+		panic(err)
+	}
+	defer conn.Close()
+
+	c := proto.NewUserClient(conn)
+	_, reqErr := c.Login(context.Background(), &proto.LoginPayload{
+		Username: "a",
+	})
+
+	if reqErr == nil {
+		t.Error("Test not exist login should have error")
 	}
 }
