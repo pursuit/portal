@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"sync"
 	"syscall"
+	"time"
 
 	"github.com/pursuit/portal/internal/consumer"
 	"github.com/pursuit/portal/internal/proto/out"
@@ -50,6 +51,7 @@ func main() {
 		Batch:     uint(2),
 		DB:        db,
 		Kafka:     kafkaProducer,
+		QInterval: 1 * time.Second,
 		WorkerNum: uint(2),
 	}
 	go kafkaPublishFromSQL.Run()

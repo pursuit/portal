@@ -90,7 +90,7 @@ func TestUser(t *testing.T) {
 		})
 	}
 
-	time.Sleep(3 * time.Minute)
+	time.Sleep(5 * time.Second)
 	testGetUserBalanceValid(t, successID)
 }
 
