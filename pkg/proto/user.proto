@@ -5,7 +5,7 @@ option go_package = "github.com/pursuit/portal/pkg/proto";
 package proto;
 
 message CreateUserPayload {
-  string name = 1;
+  string username = 1;
   bytes password = 2;
 }
 
@@ -21,7 +21,17 @@ message GetUserBalanceResponse {
   int64 amount = 1;
 }
 
+message LoginPayload {
+  string username = 1;
+  bytes password = 2;
+}
+
+message LoginResponse {
+  string token = 1;
+}
+
 service User {
   rpc Create(CreateUserPayload) returns (CreateUserResponse) {}
   rpc GetBalance(GetUserBalancePayload) returns (GetUserBalanceResponse) {}
+  rpc Login(LoginPayload) returns (LoginResponse) {}
 }
