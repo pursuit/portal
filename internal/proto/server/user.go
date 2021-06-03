@@ -7,8 +7,8 @@ import (
 	"github.com/pursuit/portal/internal/service/mutation"
 	"github.com/pursuit/portal/internal/service/user"
 
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type UserServer struct {
@@ -23,10 +23,10 @@ func (this UserServer) Create(ctx context.Context, in *proto.CreateUserPayload) 
 	if err != nil {
 		httpStatus := err.Status / 1_000
 		if httpStatus >= 400 && httpStatus < 500 {
-			return nil, grpc.Errorf(codes.InvalidArgument, err.Error())
+			return nil, status.Errorf(codes.InvalidArgument, err.Error())
 		}
 
-		return nil, grpc.Errorf(codes.Unavailable, "Please try again in a few moment")
+		return nil, status.Errorf(codes.Unavailable, "Please try again in a few moment")
 	}
 
 	return &proto.CreateUserResponse{Id: int64(id)}, nil
@@ -37,10 +37,10 @@ func (this UserServer) GetBalance(ctx context.Context, in *proto.GetUserBalanceP
 	if err != nil {
 		httpStatus := err.Status / 1_000
 		if httpStatus >= 400 && httpStatus < 500 {
-			return nil, grpc.Errorf(codes.InvalidArgument, err.Error())
+			return nil, status.Errorf(codes.InvalidArgument, err.Error())
 		}
 
-		return nil, grpc.Errorf(codes.Unavailable, "Please try again in a few moment")
+		return nil, status.Errorf(codes.Unavailable, "Please try again in a few moment")
 	}
 
 	return &proto.GetUserBalanceResponse{Amount: int64(balance)}, nil
@@ -51,10 +51,10 @@ func (this UserServer) Login(ctx context.Context, in *proto.LoginPayload) (*prot
 	if err != nil {
 		httpStatus := err.Status / 1_000
 		if httpStatus >= 400 && httpStatus < 500 {
-			return nil, grpc.Errorf(codes.InvalidArgument, err.Error())
+			return nil, status.Errorf(codes.InvalidArgument, err.Error())
 		}
 
-		return nil, grpc.Errorf(codes.Unavailable, "Please try again in a few moment")
+		return nil, status.Errorf(codes.Unavailable, "Please try again in a few moment")
 	}
 
 	return &proto.LoginResponse{Token: token}, nil
