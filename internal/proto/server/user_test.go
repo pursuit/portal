@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/pursuit/portal/internal"
-	"github.com/pursuit/portal/internal/proto/out"
+	"github.com/pursuit/portal/internal/proto/out/api/portal"
 	"github.com/pursuit/portal/internal/proto/server"
 	"github.com/pursuit/portal/internal/service/mutation/mock"
 	"github.com/pursuit/portal/internal/service/user/mock"
@@ -18,7 +18,7 @@ func TestCreateUser(t *testing.T) {
 	for _, testcase := range []struct {
 		tName string
 
-		input     *proto.CreateUserPayload
+		input     *pursuit_api_portal_proto.CreateUserPayload
 		createErr *internal.E
 
 		outputID  int
@@ -74,7 +74,7 @@ func TestGetBalance(t *testing.T) {
 	for _, testcase := range []struct {
 		tName string
 
-		input  *proto.GetUserBalancePayload
+		input  *pursuit_api_portal_proto.GetUserBalancePayload
 		svcErr *internal.E
 
 		outputErr error
@@ -129,7 +129,7 @@ func TestLogin(t *testing.T) {
 	for _, testcase := range []struct {
 		tName string
 
-		input  *proto.LoginPayload
+		input  *pursuit_api_portal_proto.LoginPayload
 		svcErr *internal.E
 
 		outputToken string
