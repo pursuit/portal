@@ -7,7 +7,7 @@ import (
 	"unicode"
 
 	"github.com/pursuit/portal/internal"
-	"github.com/pursuit/portal/internal/proto/event"
+	"github.com/pursuit/portal/internal/proto/out/event"
 	"github.com/pursuit/portal/internal/repo"
 
 	"github.com/pursuit/event-go/pkg"
@@ -47,7 +47,7 @@ func (this Svc) process(ctx context.Context, username string, hashedPassword []b
 		}
 
 		createdAtProto, _ := ptypes.TimestampProto(now)
-		payload := event.Created{
+		payload := pursuit_event_proto.UserCreated{
 			Id:        uint64(id),
 			Username:  username,
 			CreatedAt: createdAtProto,

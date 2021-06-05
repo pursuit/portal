@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/pursuit/portal/internal/consumer"
-	"github.com/pursuit/portal/internal/proto/out"
+	"github.com/pursuit/portal/internal/proto/out/api/portal"
 	"github.com/pursuit/portal/internal/proto/server"
 	"github.com/pursuit/portal/internal/repo"
 	"github.com/pursuit/portal/internal/service/mutation"
@@ -67,7 +67,7 @@ func main() {
 	}
 
 	grpcServer := grpc.NewServer()
-	proto.RegisterUserServer(grpcServer, server.UserServer{
+	pursuit_api_portal_proto.RegisterUserServer(grpcServer, server.UserServer{
 		UserService:     userSvc,
 		MutationService: mutationSvc,
 	})

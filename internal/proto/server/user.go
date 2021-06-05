@@ -3,7 +3,7 @@ package server
 import (
 	"context"
 
-	"github.com/pursuit/portal/internal/proto/out"
+	"github.com/pursuit/portal/internal/proto/out/api/portal"
 	"github.com/pursuit/portal/internal/service/mutation"
 	"github.com/pursuit/portal/internal/service/user"
 
@@ -12,13 +12,13 @@ import (
 )
 
 type UserServer struct {
-	proto.UnimplementedUserServer
+	pursuit_api_portal_proto.UnimplementedUserServer
 
 	UserService     user.Service
 	MutationService mutation.Service
 }
 
-func (this UserServer) Create(ctx context.Context, in *proto.CreateUserPayload) (*proto.CreateUserResponse, error) {
+func (this UserServer) Create(ctx context.Context, in *pursuit_api_portal_proto.CreateUserPayload) (*pursuit_api_portal_proto.CreateUserResponse, error) {
 	id, err := this.UserService.Create(ctx, in.GetUsername(), in.GetPassword())
 	if err != nil {
 		httpStatus := err.Status / 1_000
@@ -29,10 +29,10 @@ func (this UserServer) Create(ctx context.Context, in *proto.CreateUserPayload) 
 		return nil, status.Errorf(codes.Unavailable, "Please try again in a few moment")
 	}
 
-	return &proto.CreateUserResponse{Id: int64(id)}, nil
+	return &pursuit_api_portal_proto.CreateUserResponse{Id: int64(id)}, nil
 }
 
-func (this UserServer) GetBalance(ctx context.Context, in *proto.GetUserBalancePayload) (*proto.GetUserBalanceResponse, error) {
+func (this UserServer) GetBalance(ctx context.Context, in *pursuit_api_portal_proto.GetUserBalancePayload) (*pursuit_api_portal_proto.GetUserBalanceResponse, error) {
 	balance, err := this.MutationService.GetBalance(ctx, int(in.GetUserId()))
 	if err != nil {
 		httpStatus := err.Status / 1_000
@@ -43,10 +43,10 @@ func (this UserServer) GetBalance(ctx context.Context, in *proto.GetUserBalanceP
 		return nil, status.Errorf(codes.Unavailable, "Please try again in a few moment")
 	}
 
-	return &proto.GetUserBalanceResponse{Amount: int64(balance)}, nil
+	return &pursuit_api_portal_proto.GetUserBalanceResponse{Amount: int64(balance)}, nil
 }
 
-func (this UserServer) Login(ctx context.Context, in *proto.LoginPayload) (*proto.LoginResponse, error) {
+func (this UserServer) Login(ctx context.Context, in *pursuit_api_portal_proto.LoginPayload) (*pursuit_api_portal_proto.LoginResponse, error) {
 	token, err := this.UserService.Login(ctx, in.GetUsername(), in.GetPassword())
 	if err != nil {
 		httpStatus := err.Status / 1_000
@@ -57,5 +57,5 @@ func (this UserServer) Login(ctx context.Context, in *proto.LoginPayload) (*prot
 		return nil, status.Errorf(codes.Unavailable, "Please try again in a few moment")
 	}
 
-	return &proto.LoginResponse{Token: token}, nil
+	return &pursuit_api_portal_proto.LoginResponse{Token: token}, nil
 }

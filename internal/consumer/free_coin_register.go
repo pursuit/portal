@@ -3,10 +3,10 @@ package consumer
 import (
 	"context"
 
-	"github.com/pursuit/portal/internal/proto/event"
+	"github.com/pursuit/portal/internal/proto/out/event"
 	"github.com/pursuit/portal/internal/service/mutation"
 
-	protoLib "github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/proto"
 
 	"github.com/Shopify/sarama"
 )
@@ -28,8 +28,8 @@ func (this *FreeCoinRegisterConsumer) Cleanup(sarama.ConsumerGroupSession) error
 
 func (this *FreeCoinRegisterConsumer) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
 	for message := range claim.Messages() {
-		var protoData event.Created
-		if err := protoLib.Unmarshal(message.Value, &protoData); err != nil {
+		var protoData pursuit_event_proto.UserCreated
+		if err := proto.Unmarshal(message.Value, &protoData); err != nil {
 			session.MarkMessage(message, "")
 			return err
 		}
