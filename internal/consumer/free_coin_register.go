@@ -28,7 +28,7 @@ func (this *FreeCoinRegisterConsumer) Cleanup(sarama.ConsumerGroupSession) error
 
 func (this *FreeCoinRegisterConsumer) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
 	for message := range claim.Messages() {
-		var protoData pursuit_event_proto.UserCreated
+		var protoData event_proto.UserCreated
 		if err := proto.Unmarshal(message.Value, &protoData); err != nil {
 			session.MarkMessage(message, "")
 			return err
