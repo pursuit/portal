@@ -18,7 +18,7 @@ func TestCreateUser(t *testing.T) {
 	for _, testcase := range []struct {
 		tName string
 
-		input     *pursuit_api_portal_proto.CreateUserPayload
+		input     *portal_proto.CreateUserPayload
 		createErr *internal.E
 
 		outputID  int
@@ -74,7 +74,7 @@ func TestGetBalance(t *testing.T) {
 	for _, testcase := range []struct {
 		tName string
 
-		input  *pursuit_api_portal_proto.GetUserBalancePayload
+		input  *portal_proto.GetUserBalancePayload
 		svcErr *internal.E
 
 		outputErr error
@@ -129,7 +129,7 @@ func TestLogin(t *testing.T) {
 	for _, testcase := range []struct {
 		tName string
 
-		input  *pursuit_api_portal_proto.LoginPayload
+		input  *portal_proto.LoginPayload
 		svcErr *internal.E
 
 		outputToken string

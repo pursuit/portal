@@ -67,7 +67,7 @@ func main() {
 	}
 
 	grpcServer := grpc.NewServer()
-	pursuit_api_portal_proto.RegisterUserServer(grpcServer, server.UserServer{
+	portal_proto.RegisterUserServer(grpcServer, server.UserServer{
 		UserService:     userSvc,
 		MutationService: mutationSvc,
 	})

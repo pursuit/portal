@@ -47,7 +47,7 @@ func (this Svc) process(ctx context.Context, username string, hashedPassword []b
 		}
 
 		createdAtProto, _ := ptypes.TimestampProto(now)
-		payload := pursuit_event_proto.UserCreated{
+		payload := event_proto.UserCreated{
 			Id:        uint64(id),
 			Username:  username,
 			CreatedAt: createdAtProto,
