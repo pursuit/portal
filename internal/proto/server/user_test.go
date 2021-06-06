@@ -38,7 +38,7 @@ func TestCreateUser(t *testing.T) {
 				Err:    errors.New("database down"),
 				Status: 503_000,
 			},
-			outputErr: errors.New("rpc error: code = Unavailable desc = Please try again in a few moment"),
+			outputErr: errors.New("rpc error: code = Unavailable desc = database down"),
 		},
 		{
 			tName:    "success",
@@ -94,7 +94,7 @@ func TestGetBalance(t *testing.T) {
 				Err:    errors.New("database down"),
 				Status: 503_000,
 			},
-			outputErr: errors.New("rpc error: code = Unavailable desc = Please try again in a few moment"),
+			outputErr: errors.New("rpc error: code = Unavailable desc = database down"),
 		},
 		{
 			tName: "success",
@@ -149,7 +149,7 @@ func TestLogin(t *testing.T) {
 				Err:    errors.New("database down"),
 				Status: 503_000,
 			},
-			outputErr: errors.New("rpc error: code = Unavailable desc = Please try again in a few moment"),
+			outputErr: errors.New("rpc error: code = Unavailable desc = database down"),
 		},
 		{
 			tName:       "success",
