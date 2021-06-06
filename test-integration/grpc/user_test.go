@@ -8,7 +8,7 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
-	"github.com/pursuit/portal/internal/proto/out"
+	"github.com/pursuit/portal/internal/proto/out/api/portal"
 )
 
 func TestUser(t *testing.T) {
@@ -74,8 +74,8 @@ func TestUser(t *testing.T) {
 		},
 	} {
 		t.Run(testcase.tName, func(t *testing.T) {
-			c := proto.NewUserClient(conn)
-			resp, err := c.Create(context.Background(), &proto.CreateUserPayload{
+			c := portal_proto.NewUserClient(conn)
+			resp, err := c.Create(context.Background(), &portal_proto.CreateUserPayload{
 				Username: testcase.username,
 				Password: testcase.password,
 			})
@@ -107,8 +107,8 @@ func testGetUserBalanceValid(t *testing.T, userID int) {
 	}
 	defer conn.Close()
 
-	c := proto.NewUserClient(conn)
-	resp, err := c.GetBalance(context.Background(), &proto.GetUserBalancePayload{
+	c := portal_proto.NewUserClient(conn)
+	resp, err := c.GetBalance(context.Background(), &portal_proto.GetUserBalancePayload{
 		UserId: int64(userID),
 	})
 
@@ -129,8 +129,8 @@ func testLoginValid(t *testing.T, username string, password []byte) {
 	}
 	defer conn.Close()
 
-	c := proto.NewUserClient(conn)
-	resp, err := c.Login(context.Background(), &proto.LoginPayload{
+	c := portal_proto.NewUserClient(conn)
+	resp, err := c.Login(context.Background(), &portal_proto.LoginPayload{
 		Username: username,
 		Password: password,
 	})
@@ -152,8 +152,8 @@ func TestGetNotExistingUserBalance(t *testing.T) {
 	}
 	defer conn.Close()
 
-	c := proto.NewUserClient(conn)
-	resp, err := c.GetBalance(context.Background(), &proto.GetUserBalancePayload{
+	c := portal_proto.NewUserClient(conn)
+	resp, err := c.GetBalance(context.Background(), &portal_proto.GetUserBalancePayload{
 		UserId: int64(0),
 	})
 
@@ -174,8 +174,8 @@ func TestLoginNotExistingUser(t *testing.T) {
 	}
 	defer conn.Close()
 
-	c := proto.NewUserClient(conn)
-	_, reqErr := c.Login(context.Background(), &proto.LoginPayload{
+	c := portal_proto.NewUserClient(conn)
+	_, reqErr := c.Login(context.Background(), &portal_proto.LoginPayload{
 		Username: "a",
 	})
 
