@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"github.com/pursuit/portal/internal"
-	"github.com/pursuit/portal/internal/model"
+	"github.com/pursuit/portal/pkg"
 
 	"golang.org/x/crypto/bcrypt"
 
@@ -31,7 +31,7 @@ func (this Svc) Login(ctx context.Context, username string, password []byte) (st
 		}
 	}
 
-	jwtBody := model.Jwt{
+	jwtBody := pkg.Jwt{
 		ID: user.ID,
 	}
 

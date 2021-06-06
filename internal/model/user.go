@@ -5,11 +5,3 @@ type User struct {
 	Username       string
 	HashedPassword []byte
 }
-
-type Jwt struct {
-	ID int
-}
-
-func (this Jwt) Valid() error {
-	return nil
-}
