@@ -63,7 +63,7 @@ func TestCreateUser(t *testing.T) {
 				t.Errorf("Test %s, err is %v, should be %v", testcase.tName, err, testcase.outputErr)
 			}
 
-			if int64(testcase.outputID) != resp.GetId() {
+			if uint64(testcase.outputID) != resp.GetId() {
 				t.Errorf("Test %s, id is %d, should be %d", testcase.tName, resp.GetId(), testcase.outputID)
 			}
 		})
@@ -118,7 +118,7 @@ func TestGetBalance(t *testing.T) {
 				t.Errorf("Test %s, err is %v, should be %v", testcase.tName, err, testcase.outputErr)
 			}
 
-			if int64(testcase.balance) != resp.GetAmount() {
+			if uint64(testcase.balance) != resp.GetAmount() {
 				t.Errorf("Test %s, balance is %d, should be %d", testcase.tName, resp.GetAmount(), testcase.balance)
 			}
 		})
