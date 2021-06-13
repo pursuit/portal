@@ -29,7 +29,7 @@ func (this UserServer) Create(ctx context.Context, in *portal_proto.CreateUserPa
 		return nil, status.Errorf(codes.Unavailable, err.Error())
 	}
 
-	return &portal_proto.CreateUserResponse{Id: int64(id)}, nil
+	return &portal_proto.CreateUserResponse{Id: uint64(id)}, nil
 }
 
 func (this UserServer) GetBalance(ctx context.Context, in *portal_proto.GetUserBalancePayload) (*portal_proto.GetUserBalanceResponse, error) {
@@ -43,7 +43,7 @@ func (this UserServer) GetBalance(ctx context.Context, in *portal_proto.GetUserB
 		return nil, status.Errorf(codes.Unavailable, err.Error())
 	}
 
-	return &portal_proto.GetUserBalanceResponse{Amount: int64(balance)}, nil
+	return &portal_proto.GetUserBalanceResponse{Amount: uint64(balance)}, nil
 }
 
 func (this UserServer) Login(ctx context.Context, in *portal_proto.LoginPayload) (*portal_proto.LoginResponse, error) {

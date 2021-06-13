@@ -109,14 +109,14 @@ func testGetUserBalanceValid(t *testing.T, userID int) {
 
 	c := portal_proto.NewUserClient(conn)
 	resp, err := c.GetBalance(context.Background(), &portal_proto.GetUserBalancePayload{
-		UserId: int64(userID),
+		UserId: uint64(userID),
 	})
 
 	if err != nil {
 		t.Errorf("Test created get user balance got error %v", err)
 	}
 
-	if resp.GetAmount() != int64(10) {
+	if resp.GetAmount() != uint64(10) {
 		t.Errorf("Test created get user balance is %d, should be 10", resp.GetAmount())
 	}
 }
@@ -154,14 +154,14 @@ func TestGetNotExistingUserBalance(t *testing.T) {
 
 	c := portal_proto.NewUserClient(conn)
 	resp, err := c.GetBalance(context.Background(), &portal_proto.GetUserBalancePayload{
-		UserId: int64(0),
+		UserId: uint64(0),
 	})
 
 	if err != nil {
 		t.Errorf("Test not exist get user balance got error %v", err)
 	}
 
-	if resp.GetAmount() != int64(0) {
+	if resp.GetAmount() != uint64(0) {
 		t.Errorf("Test not exists get user balance is %d, should be 0", resp.GetAmount())
 	}
 }
