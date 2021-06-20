@@ -1,11 +1,14 @@
+build:
+	docker build . -t pursuit-portal-dock
+
 run:
-	go run cmd/api/main.go
+	docker run --net pursuit_network -p 5001:5001 pursuit-portal-dock
 
 pretty:
-	gofmt -s -w .
+	go fmt $(go list ./...)
 
 unit-test:
-	go test `go list ./... | grep -v cmd | grep -v test-integration | grep -v repo`
+	go test `go list ./... | grep -v cmd | grep -v test-integration | grep -v repo | grep -v vendor`
 
 test:
-	go test ./... -count=1
+	go test `go list ./... | grep -v vendor` -count=1
