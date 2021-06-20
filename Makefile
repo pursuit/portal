@@ -1,5 +1,8 @@
+build:
+	docker build . -t pursuit-portal-dock
+
 run:
-	go run cmd/api/main.go
+	docker run --net pursuit_network -p 5001:5001 pursuit-portal-dock
 
 pretty:
 	gofmt -s -w .

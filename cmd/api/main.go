@@ -29,6 +29,7 @@ import (
 
 func main() {
 	defer log.Println("Shutdown the server success")
+	log.Println("Start the server...")
 
 	lis, err := net.Listen("tcp", ":5001")
 	if err != nil {
@@ -36,13 +37,18 @@ func main() {
 	}
 	defer lis.Close()
 
-	db, err := sql.Open("pgx", "postgres://postgres:password@localhost:5432/portal_development")
+	db, err := sql.Open("pgx", "postgres://postgres:password@postgres:5432/portal_development")
 	if err != nil {
 		panic(err)
 	}
 	defer db.Close()
+	ctxDB, cancelDB := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancelDB()
+	if err := db.PingContext(ctxDB); err != nil {
+		panic(err)
+	}
 
-	kafkaProducer, err := sarama.NewSyncProducer([]string{"localhost:9092"}, nil)
+	kafkaProducer, err := sarama.NewSyncProducer([]string{"kafka:9092"}, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -87,7 +93,7 @@ func main() {
 	config := sarama.NewConfig()
 	config.Version = sarama.V2_8_0_0
 	config.Consumer.Group.Rebalance.Strategy = sarama.BalanceStrategyRoundRobin
-	kafkaConsumer, err := sarama.NewConsumerGroup([]string{"localhost:9092"}, "free-coin-for-register", sarama.NewConfig())
+	kafkaConsumer, err := sarama.NewConsumerGroup([]string{"kafka:9092"}, "free-coin-for-register", sarama.NewConfig())
 	if err != nil {
 		panic(err)
 	}
