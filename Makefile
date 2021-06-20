@@ -8,7 +8,7 @@ pretty:
 	gofmt -s -w .
 
 unit-test:
-	go test `go list ./... | grep -v cmd | grep -v test-integration | grep -v repo`
+	go test `go list ./... | grep -v cmd | grep -v test-integration | grep -v repo | grep -v vendor`
 
 test:
-	go test ./... -count=1
+	go test `go list ./... | grep -v vendor` -count=1
