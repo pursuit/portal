@@ -5,7 +5,7 @@ run:
 	docker run --net pursuit_network -p 5001:5001 pursuit-portal-dock
 
 pretty:
-	gofmt -s -w .
+	go fmt $(go list ./...)
 
 unit-test:
 	go test `go list ./... | grep -v cmd | grep -v test-integration | grep -v repo | grep -v vendor`
