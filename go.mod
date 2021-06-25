@@ -14,7 +14,7 @@ require (
 	github.com/jackc/pgx v3.6.2+incompatible
 	github.com/lib/pq v1.3.0 // indirect
 	github.com/pkg/errors v0.8.1 // indirect
-	github.com/pursuit/event-go v0.0.0-20210602003229-5942a7118857
+	github.com/pursuit/event-go v0.0.0-20210625131348-248eb82e2725
 	github.com/shopspring/decimal v0.0.0-20200227202807-02e2044944cc // indirect
 	golang.org/x/crypto v0.0.0-20210421170649-83a5a9bb288b
 	golang.org/x/net v0.0.0-20210525063256-abc453219eb5
