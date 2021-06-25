@@ -103,11 +103,11 @@ func main() {
 	wg.Add(1)
 	defer wg.Wait()
 	defer cancel()
-	go func() {
+	go func(c sarama.ConsumerGroup) {
 		defer log.Println("finish consum")
 		defer wg.Done()
 		for {
-			if err := kafkaConsumer.Consume(ctx, []string{"portal.user.created.x2"}, &freeCoinAfterRegister); err != nil {
+			if err := c.Consume(ctx, []string{"portal.user.created.x2"}, &freeCoinAfterRegister); err != nil {
 				log.Printf("Error from consumer: %v", err)
 			}
 			if ctx.Err() != nil {
@@ -116,7 +116,7 @@ func main() {
 
 			freeCoinAfterRegister.Ready = make(chan bool)
 		}
-	}()
+	}(kafkaConsumer)
 
 	<-freeCoinAfterRegister.Ready
 
