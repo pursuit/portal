@@ -128,5 +128,20 @@ func main() {
 
 	log.Println("Shutting down the server")
 
-	grpcServer.GracefulStop()
+	ctxShutdown, cancelShutdown := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancelShutdown()
+
+	gracefulChan := make(chan bool)
+	go func() {
+		grpcServer.GracefulStop()
+		gracefulChan <- true
+	}()
+
+	select {
+	case <-gracefulChan:
+		break
+	case <-ctxShutdown.Done():
+		log.Println("Forcing shut down")
+		grpcServer.Stop()
+	}
 }
