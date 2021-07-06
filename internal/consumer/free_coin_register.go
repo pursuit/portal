@@ -12,7 +12,7 @@ import (
 )
 
 type FreeCoinRegisterConsumer struct {
-	Ready chan bool
+	Ready chan struct{}
 
 	MutationSvc mutation.Service
 }

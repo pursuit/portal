@@ -86,7 +86,7 @@ func main() {
 	}()
 
 	freeCoinAfterRegister := consumer.FreeCoinRegisterConsumer{
-		Ready:       make(chan bool),
+		Ready:       make(chan struct{}),
 		MutationSvc: mutationSvc,
 	}
 
@@ -114,7 +114,7 @@ func main() {
 				return
 			}
 
-			freeCoinAfterRegister.Ready = make(chan bool)
+			freeCoinAfterRegister.Ready = make(chan struct{})
 		}
 	}(kafkaConsumer)
 
@@ -131,10 +131,10 @@ func main() {
 	ctxShutdown, cancelShutdown := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancelShutdown()
 
-	gracefulChan := make(chan bool)
+	gracefulChan := make(chan struct{})
 	go func() {
 		grpcServer.GracefulStop()
-		gracefulChan <- true
+		gracefulChan <- struct{}{}
 	}()
 
 	select {
