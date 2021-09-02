@@ -72,7 +72,9 @@ func main() {
 		UserRepo: repo.UserRepo{},
 	}
 
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(
+		grpc.ChainUnaryInterceptor(Interceptor),
+	)
 	portal_proto.RegisterUserServer(grpcServer, server.UserServer{
 		UserService:     userSvc,
 		MutationService: mutationSvc,
@@ -144,4 +146,14 @@ func main() {
 		log.Println("Forcing shut down")
 		grpcServer.Stop()
 	}
+}
+
+func Interceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+	log.Println("a mid")
+
+	resp, err := handler(ctx, req)
+
+	log.Println("b mid")
+
+	return resp, err
 }
