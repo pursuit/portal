@@ -2,7 +2,7 @@ build:
 	docker build . -t pursuit-portal-dock
 
 run:
-	docker run --rm --net pursuit_network --name portal -p 5001:5001 pursuit-portal-dock
+	docker run --rm --net pursuit_network --name portal -p 5001:5001 -p 5002:5002 pursuit-portal-dock
 
 pretty:
 	go fmt `go list ./...`

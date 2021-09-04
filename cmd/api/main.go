@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"log"
 	"net"
+	"net/http"
 	"os"
 	"os/signal"
 	"sync"
@@ -25,11 +26,21 @@ import (
 	_ "github.com/jackc/pgx/stdlib"
 
 	"github.com/Shopify/sarama"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func main() {
 	defer log.Println("Shutdown the server success")
 	log.Println("Start the server...")
+
+	http.Handle("/metrics", promhttp.Handler())
+	go func() {
+		log.Println("listen to 5002")
+		http.ListenAndServe(":5002", nil)
+	}()
 
 	lis, err := net.Listen("tcp", ":5001")
 	if err != nil {
@@ -72,7 +83,9 @@ func main() {
 		UserRepo: repo.UserRepo{},
 	}
 
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(
+		grpc.ChainUnaryInterceptor(Interceptor),
+	)
 	portal_proto.RegisterUserServer(grpcServer, server.UserServer{
 		UserService:     userSvc,
 		MutationService: mutationSvc,
@@ -144,4 +157,17 @@ func main() {
 		log.Println("Forcing shut down")
 		grpcServer.Stop()
 	}
+}
+
+var (
+	opsProcessed = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "myapp_processed_ops_total",
+		Help: "The total number of processed events",
+	})
+)
+
+func Interceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+	resp, err := handler(ctx, req)
+	opsProcessed.Inc()
+	return resp, err
 }
